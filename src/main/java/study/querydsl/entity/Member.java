@@ -1,5 +1,12 @@
 package study.querydsl.entity;
 
+import jakarta.persistence.*;
+import lombok.*;
+
+@Entity
+@Getter @Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@ToString(of = {"id", "username", "age"})
 public class Member {
     @Id
     @GeneratedValue
