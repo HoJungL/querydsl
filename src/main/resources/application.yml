@@ -5,16 +5,16 @@ spring:
     password:
     driver-class-name: org.h2.Driver
 
-
-
   jpa:
     hibernate:
       ddl-auto: create
     properties:
       hibernate:
         format_sql: true
+#        show_sql: true
 
 
 logging:
   level:
     org.hibernate.sql: debug
+    org.hibernate.type: trace # ?볼수 잇음
