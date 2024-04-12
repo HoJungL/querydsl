@@ -11,6 +11,9 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        # querydls은 jpql의 builder 역할임
+        # 아래의 코드를 쓰면, 실행된 JPQL이 나옴. 주석으로 표시됨.
+        use_sql_comments: true
 #        show_sql: true
 
 
