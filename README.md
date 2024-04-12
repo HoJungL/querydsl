@@ -45,17 +45,18 @@
 * 2. 회원 이름 올림차순
 * 단, 2에서 회원 이름이 없으면 마지막에 출력(nulls last)
 ```
-```angular2html
+```
 List<Member> result = queryFactory
                 .selectFrom(member)
                 .where(member.age.eq(100))
                 .orderBy(member.age.desc(), member.username.asc().nullsLast())
                 .fetch();
+}
 ```
 
 ## 집합
 - 튜플형태로 들어가기 때문에 get을 써야함.
-```angular2html
+```
     public void aggregation() {
         List<Tuple> result = queryFactory
                 .select(
