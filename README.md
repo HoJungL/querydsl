@@ -215,3 +215,25 @@ queryFactory
 
 ## SQL function 호출하기
 - 기본적으로 JPA와 같이 Dialect에 등록된 내용만 호출 가능
+
+
+# 실무 활용 - 순수 JPA와 Querydsl
+
+## 순수 JPA 리포지토리와 Querydsl
+- JPAQueryFactory는 Application에 @Bean으로 등록해도 됨
+```
+@Bean
+JPAQueryFactory jpaQueryFactory(EntityManaget em){
+    return new JPAQueryFactory(em);
+    }
+    -> 이걸 쓰면 대신 RequiredArgsConstructor를 써서 생성자 삭제가능
+```
+
+## 동적 쿼리와 성능 최적화 조회(1) - Builder 사용
+
+
+## 동적 쿼리와 성능 최적화 조회(2) - Where 절 파라미터 사용
+- method 재사용이 진짜 진짜 진짜 좋은 장점임..
+- BooleanExpression끼리 조합 가능
+
+## 조회 API 컨트롤러 개발
