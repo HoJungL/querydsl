@@ -125,3 +125,93 @@ queryFactory
 ## 상수, 문자 더하기
 - 문자 + 상수는 입력되지 않기때문에, ~.stringValue()를 써줘야 concat이 됩니다.
 - stringValue() : 문자가 아닌 다른 타입들을 문자로 변환할수 있는 방법으로, ENUM을 처리할때 자주 사용함.
+
+
+
+# 중급 문법
+
+## 프로젝션과 결과 반환 - 기본
+- 프로젝션
+- DTO: bean을 만들고, 여러 데이터를 받을 수 있도록 자료구조를 만들어 놓은것.
+
+## 프로젝션과 결과 반환 - DTO 조회
+- 순수 JPA에서 DTO로 조회할때는 em.cQ("select new path(DTO내용)",Dto.class) 형식으로 써줘야함.
+- 생성자 방식만 지원함 --> setter, 필드에 바로 값 주입 안됨 (public Dto 있어야한다는 말)
+
+- Querydsl 빈 생성(Bean population)
+- 프로퍼티 접근(Setter), 필드 직접 접근, 생성자 사용
+
+```
+    @Test
+    public void findUserDto() {
+        QMember memberSub = new QMember("memberSub");
+        List<UserDto> result = queryFactory
+                .select(Projections.fields(UserDto.class,
+                        member.username.as("name"),
+                        
+                        //서브 쿼리 부분 age에 매칭하기.
+                        ExpressionUtils.as(JPAExpressions
+                                .select(memberSub.age.max())
+                                .from(memberSub), "age")
+                ))
+                .from(member)
+                .fetch();
+```
+
+## 프로젝션과 결과반환 - @QueryProjection
+- DTO에 @QueryProjection을 써주기만 하면 됌.
+- 의존성을 띔. ㅠㅠ
+
+## 동적 쿼리(1) -BooleanBuilder 사용
+```
+    @Test
+    public void dynamicQuery_BooleanBuilder() {
+        String usernameParam = "member1";
+        Integer ageParam = 10;
+
+        List<Member> result = searchMember1(usernameParam, ageParam);
+        assertThat(result.size()).isEqualTo(1);
+    }
+
+    private List<Member> searchMember1(String usernameCond, Integer ageCond) {
+
+        BooleanBuilder builder = new BooleanBuilder();
+        if (usernameCond != null) {
+            builder.and(member.username.eq(usernameCond));
+        }
+
+        // null이면 이쪽 코드를 안탐. where 문에 관여 자체를 안함.
+        if (ageCond != null) {
+            builder.and(member.age.eq(ageCond));
+        }
+
+        return queryFactory
+                .selectFrom(member)
+                .where(builder)
+                .fetch();
+    }
+```
+
+
+## 동적 쿼리(2) - where 다중 파라미터 사용
+- method를 다른 쿼리에서 재사용 가능
+- 가독성이 높아짐.
+- - 조합이 가능해짐.
+```
+    private BooleanExpression allEq(String usernameCond, Integer ageCond) {
+        return usernameEq(usernameCond).and(ageEq(ageCond));
+    }
+```
+
+
+## 수정, 삭제 벌크 연산
+- 쿼리 한번으로 대량 데이터를 수정할때 쓰는 방법.
+- 벌크 연산은 DB를 바로 변경시켜버림.
+- JPA는 영속성 컨텍스트에 올라가있음. -> DB와 영속성 컨텍스트에 있는 값이 달라짐. 
+- 이상태에서 selectFrom().fetch()해버리면... DB보다 영속성 컨텍스트가 우선권을 가져버림
+- 따라서, em.flush(), em.clear()를 꼭해야...
+- 덧셈은 add, 곱하기는 multiply 하면 됨.
+
+
+## SQL function 호출하기
+- 기본적으로 JPA와 같이 Dialect에 등록된 내용만 호출 가능
