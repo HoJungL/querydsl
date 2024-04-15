@@ -237,3 +237,84 @@ JPAQueryFactory jpaQueryFactory(EntityManaget em){
 - BooleanExpression끼리 조합 가능
 
 ## 조회 API 컨트롤러 개발
+- @GetMapping을 통해서 생성
+
+
+# 섹션 6 스프링 데이터 JPA와 Querydsl
+
+## 스프링 데이터 JPA 리포지토리로 변경
+- 기본적인 crud, 정적쿼리는 스프링 데이터 JPA가 인터페이스를 만들면, 이름 매칭후, 구현체가 꽂아줌.
+
+## 사용자 정의 리포지토리
+- 사용자 정의 리포지토리 사용법
+- 1. 사용자 정의 인터페이스 작성
+- 2. 사용자 정의 인터페이스 구현
+- 3. 스프링 데이터 리포지토리에 사용자 정의 인터페이스 상속 
+- - Impl로 이름 써야 JPA 쓰기 편함!
+- - 특화된 기능(재사용도 가능하다면)이라면 Repository로 하나 만들어서 따로 만드는 것도 괜찮아요.
+
+## 스프링데이터 페이징 활용1 - querydsl 페이징 연동
+- 스프링 데이터의 Page, pageable 활용
+- 전체 카운트를 한번에 조회하는 단순한 방법
+- 데이터 내용과 전체 카운트를 별도로 조회하는 방법 등 가능
+```
+차이점
+단순 조회의 경우, fetchResults를 통해 쿼리DSL이 토탈을 날려줌
+별도 조회의 경우, 직접 내가 토탈 쿼리를 날리는 것.
+-> count query를 최적화 할 수 잇음.
+```
+## 스프링데이터 페이징 활용2 - querydsl 최적화
+- 스프링 데이터 라이브러리가 제공해줌
+- count 쿼리가 생략 가능한 경우 
+- - 페이지 시작이면서 컨텐츠 사이즈가 페이지 사이즈보다 작을때
+- - 마지막 페이지 일때 (offset + 컨텐츠 사이즈를 더해서 전체 사이즈 구함)
+```
+// 최적화 전
+       long total = queryFactory
+                .select(member)
+                .from(member)
+                .leftJoin(member.team, team)
+                .where(
+                        usernameEq(condition.getUsername()),
+                        teamNameEq(condition.getTeamName()),
+                        ageGoe(condition.getAgeGoe()),
+                        ageLoe(condition.getAgeLoe())
+                )
+                .fetchCount();
+
+        return new PageImpl<>(content, pageable, total);
+        
+      
+// 최적화 후
+        JPAQuery<Member> countQuery = queryFactory
+                .select(member)
+                .from(member)
+                .leftJoin(member.team, team)
+                .where(
+                        usernameEq(condition.getUsername()),
+                        teamNameEq(condition.getTeamName()),
+                        ageGoe(condition.getAgeGoe()),
+                        ageLoe(condition.getAgeLoe())
+                );
+
+        return PageableExecutionUtils.getPage(content, pageable, () -> countQuery.fetchCount());
+
+```
+
+## 스프링데이터 페이징 활용3 - 컨트롤러 개발
+
+# 섹션 7 스프링 데이터 JPA가 제공하는 Querydsl 기능
+- QuerydslPredicateExecutor
+- - table이 다중으로 생길경우, 못씀..
+- leftJoin이 불가능함
+- 서비스 클래스가 Querydsl이라는 구현 기술에 의존해야함..!!
+- 실무에서는 쓰기 어려움.
+- 
+## 인터페이스 지원 - QuerydslPredicateExecutor
+
+## Querydsl Web 지원
+
+## 리포지토리 지원 - QuerydslRepositorySupport
+
+## Querydsl 지원 클래스 직접 만들기
+
