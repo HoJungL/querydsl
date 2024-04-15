@@ -304,17 +304,23 @@ JPAQueryFactory jpaQueryFactory(EntityManaget em){
 ## 스프링데이터 페이징 활용3 - 컨트롤러 개발
 
 # 섹션 7 스프링 데이터 JPA가 제공하는 Querydsl 기능
+
+## 인터페이스 지원 - QuerydslPredicateExecutor
 - QuerydslPredicateExecutor
 - - table이 다중으로 생길경우, 못씀..
 - leftJoin이 불가능함
 - 서비스 클래스가 Querydsl이라는 구현 기술에 의존해야함..!!
 - 실무에서는 쓰기 어려움.
-- 
-## 인터페이스 지원 - QuerydslPredicateExecutor
 
 ## Querydsl Web 지원
+- 공식 URL 보기
+- 한계점
+1. 단순한 조건만 가능(contain, in 등등)
+2. 조건을 커스텀 하는 기능이 복잡
+3. 컨트롤러가 Querydsl에 의존
 
 ## 리포지토리 지원 - QuerydslRepositorySupport
-
+- Impl extends QuerydslRepositorySupport 를 쓰면 됨.
+- 난.. 안쓸듯..
 ## Querydsl 지원 클래스 직접 만들기
 
